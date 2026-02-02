@@ -1,0 +1,24 @@
+{
+  "name": "typesctript-to-do-list",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "server": "json-server --watch data/db.json --port 3001",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/toastify-js": "^1.12.4",
+    "json-server": "^1.0.0-beta.3",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.17",
+    "axios": "^1.13.2",
+    "tailwindcss": "^4.1.17",
+    "toastify-js": "^1.12.0"
+  }
+}

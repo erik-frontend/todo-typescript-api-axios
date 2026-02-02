@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./src/style.css">
+    <title>Typescript to do list</title>
+  </head>
+  <body class="min-h-screen flex flex-col py-10 text-gray-900 bg-gray-100">
+    <div id="app" class="w-full rounded-lg p-8">
+      <h1 class="text-3xl font-bold mb-4 text-center">Todos</h1>
+      <ul id="todos" class="todos space-y-4"></ul>
+      <h2 class="text-xl font-semibold mt-10 mb-3">Create a new todo</h2>
+       <form id="new-todo-form">
+        <div class="form-group mb-2">
+          <input
+            type="text"
+            id="new-todo-title"
+            name="title"
+            class="w-full border rounded-md px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-400 outline-none"
+            placeholder="Enter a description of your new todo..."
+            required
+          />
+        </div>
+ 
+        <button
+          type="submit"
+          class="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition"
+        >
+          Create
+        </button>
+        <button
+          type="reset"
+          class="cursor-pointer flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition"
+        >
+          Reset
+        </button>
+      </form>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

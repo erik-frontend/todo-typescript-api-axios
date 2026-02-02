@@ -1,0 +1,12 @@
+{
+    "todos": [
+        { "id": 1, "title": "🤓 Learn about TypeScript", "completed": true
+        },
+        { "id": 2, "title": "😇 Take over the world", "completed": false
+        },
+        { "id": 3, "title": "💰 Profit", "completed": false
+        },
+        { "id": 4, "title": "😈 Be nice", "completed": true
+        }
+    ]
+}
