@@ -1,11 +1,7 @@
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
-
-interface Todo {
-    id: number;
-    title: string;
-    completed: boolean;
-}
+import { getTodos, createTodo, updateTodo, deleteTodo } from './api/todos.api';
+import type { Todo } from './type/types';
 
 const todosEl = document.querySelector<HTMLUListElement>("#todos")!;
 // console.log(todosEl);
@@ -13,36 +9,97 @@ const newTodoTitleEl = document.querySelector<HTMLInputElement>("#new-todo-title
 
 const newTodoFormEl = document.querySelector<HTMLFormElement>("#new-todo-form")!
 
-const START_ARRAY = [
-    { id: 1, title: "🤓 Learn about TypeScript", completed: true },
-    { id: 2, title: "😇 Take over the world", completed: false },
-    { id: 3, title: "💰 Profit", completed: false },
-    { id: 4, title: "😈 Be nice", completed: true },
-]
 
-const jsonTodos = localStorage.getItem("todos");
-// console.log(jsonTodos);
+let todos: Todo[] = []
+let editTodoId: number | string | null = null
 
-let todos: Todo[] = jsonTodos ?
-    JSON.parse(jsonTodos)
-    : START_ARRAY;
+const loadTodos = async() => {
+    try {
+        todos = await getTodos()
+        renderTodos()
+    } catch (error) {
+        Toastify({
+            text: "Failed to load todos from server",
+            duration: 2000,
+            gravity: "top",
+            position: "center",
+            style: {
+                background: "linear-gradient(to right, #ff416s, #ff4b2b)"
+            }
+        }).showToast()
+        console.error(error);
+    }
+}
 
-//  console.log(todos);
+const toggleTodo = async(id: number | string, completed: boolean) => {
+    try {
+        await updateTodo(id, {completed})
+        await loadTodos()
+    } catch (error) {
+         Toastify({
+            text: "Failed to update todo",
+            duration: 1500,
+            gravity: "top",
+            position: "center",
+            style: {
+                background: "linear-gradient(to right, #ff416s, #ff4b2b)"
+            }
+        }).showToast()
+        console.error(error);
+    }
+}
 
-// let todos: Todo[] = jsonTodos ? JSON.parse(jsonTodos) : []
+const commitEdit = async(
+    id: number | string,
+    input: HTMLInputElement,
+    oldValue: string
+) => {
+    if(editTodoId !== id) return
+    const newTitle = input.value.trim()
+    if(newTitle === oldValue){
+        input.readOnly = true
+        editTodoId = null
+        return
+    }
+    if(newTitle.length < 3) {
+        Toastify({
+            text: "Title is to short",
+            duration: 1500,
+            gravity: "top",
+            position: "center",
+            style: {
+                background: "linear-gradient(to right, #ff416s, #ff4b2b)"
+            }
+        }).showToast()
+        input.value = oldValue
+        input.readOnly = true
+        editTodoId = null
+        return
+    }
 
-const saveTodos = () => {
-    const jsonTodos = JSON.stringify(todos)
-    localStorage.setItem("todos", jsonTodos)
+    try {
+        await updateTodo(id, {title: newTitle})
+        await loadTodos()
+    } catch (error) {
+        Toastify({
+            text: "Failed to update todo title",
+            duration: 1500,
+            gravity: "top",
+            position: "center",
+            style: {
+                background: "linear-gradient(to right, #ff416s, #ff4b2b)"
+            }
+        }).showToast()
+        input.value = oldValue
+    }
+    finally{
+        input.readOnly = true
+        editTodoId = null
+    }
 }
 
 
-const toggleTodo = (id: number) => {
-    todos = todos.map(todo => todo.id === id ? { ...todo, completed: !todo.completed } : todo)
 
-    saveTodos()
-    renderTodos()
-}
 
 
 const sortTodoByCompleted = (todos: Todo[]): Todo[] => {
@@ -105,23 +162,37 @@ const renderTodos = () => {
     const toggleInputs = document.querySelectorAll<HTMLInputElement>(".toggle")
     //    console.log(toggleInputs);
     toggleInputs.forEach(input => {
-        input.addEventListener("change", () => {
-            const id = Number(input.dataset.id)
-            toggleTodo(id)
-            // console.log(id);
+        input.addEventListener("change", (e) => {
+            const target = e.currentTarget as HTMLInputElement
+            const id = target.dataset.id!
+            const completed = target.checked
+            toggleTodo(id, completed)
         })
     })
 
     const deleteBtn = document.querySelectorAll<HTMLButtonElement>(".delete")
     // console.log(deleteBtn);
-    const deleteTodo = (id: number) => {
-        todos = todos.filter(todo => todo.id !== id)
-        saveTodos()
-        renderTodos()
+    const deleteTodo = async(id: number | string) => {
+        try {
+            await deleteTodo(id)
+            await loadTodos()
+        } catch (error) {
+            Toastify({
+            text: "Failed to delete todo",
+            duration: 1500,
+            gravity: "top",
+            position: "center",
+            style: {
+                background: "linear-gradient(to right, #ff416s, #ff4b2b)"
+            }
+        }).showToast()
+        console.error(error);
+        }
+
     }
     deleteBtn.forEach(btn => {
         btn.addEventListener("click", () => {
-            const id = Number(btn.dataset.id)
+            const id = btn.dataset.id!
             deleteTodo(id)
         })
     })
@@ -130,31 +201,31 @@ const renderTodos = () => {
 
     // Фнкция которая сохраняет измененнный текст
 
-    const saveEditTodo = (newTitle: string, id: number): boolean => {
-        if (newTitle.length < 3) {
-            Toastify({
-                text: "title is to short",
-                duration: 1500,
-                gravity: "top",
-                position: "center",
-                style: {
-                    background: "linear-gradient(to right, #ff5f6d, #ffc371)"
-                }
-            }).showToast()
-            return false
-        }
-        todos = todos.map(todo => todo.id === id ? { ...todo, title: newTitle } : todo)
-        // console.log(id);
+    // const saveEditTodo = (newTitle: string, id: number): boolean => {
+    //     if (newTitle.length < 3) {
+    //         Toastify({
+    //             text: "title is to short",
+    //             duration: 1500,
+    //             gravity: "top",
+    //             position: "center",
+    //             style: {
+    //                 background: "linear-gradient(to right, #ff5f6d, #ffc371)"
+    //             }
+    //         }).showToast()
+    //         return false
+    //     }
+    //     todos = todos.map(todo => todo.id === id ? { ...todo, title: newTitle } : todo)
+    //     // console.log(id);
 
-        saveTodos()
-        return true
-    }
+    //     saveTodos()
+    //     return true
+    // }
 
     editBtns.forEach(btn => {
         btn.addEventListener("click", () => {
             const li = btn.closest("li")!
 
-            const id = Number(li.dataset.id)
+            const id = li.dataset.id!
             // console.log(id);
             const titleInput = li?.querySelector<HTMLInputElement>(".todo-title")!
             titleInput.readOnly = false
@@ -162,12 +233,9 @@ const renderTodos = () => {
             titleInput.focus()
             titleInput.setSelectionRange(titleInput.value.length, titleInput.value.length)
 
-            const success = saveEditTodo(titleInput.value.trim(), id)
-
             const onKey = (e: KeyboardEvent) => {
                 if (e.key === "Enter") {
-                    if (!success) titleInput.value = oldValue
-                    titleInput.readOnly = true
+                    commitEdit(id, titleInput, oldValue)
                     titleInput.removeEventListener("keydown", onKey)
                 }
                 if (e.key === "Escape") {
@@ -182,45 +250,60 @@ const renderTodos = () => {
 
             titleInput.addEventListener("keydown", onKey)
             titleInput.addEventListener("blur", () => {
-                const success = saveEditTodo(titleInput.value.trim(), id)
                 // console.log(success);
-                if (!success) titleInput.value = oldValue
+                commitEdit(id, titleInput, oldValue)
                 titleInput.readOnly = true
             }, { once: true })
         })
     })
 }
 
-const newTodo = (e: SubmitEvent) => {
+const newTodo = async(e: SubmitEvent) => {
     e.preventDefault()
     const newTodoTitle = newTodoTitleEl.value.trim()
 
     if (newTodoTitle.length < 3) {
-        alert("That is to short todo, length must be more than 3 characters")
+        Toastify({
+            text: "Todo is to short, must be at least 3 characters",
+            duration: 1500,
+            gravity: "top",
+            position: "center",
+            style: {
+                background: "linear-gradient(to right, #ff416s, #ff4b2b)"
+            }
+        }).showToast()
         return
     }
-
-    const maxId = Math.max(0, ...todos.map(todo => todo.id))
-    todos.push({
-        id: maxId + 1,
-        title: newTodoTitle,
-        completed: false,
-    })
-    saveTodos()
-    renderTodos()
-    newTodoTitleEl.value = ""
-    console.log("Greate success", todos);
-    Toastify({
-        text: "todo successfully created",
-        duration: 1500,
-        gravity: "top",
-        position: "center",
-        style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)"
-        }
-    }).showToast()
-
+    try {
+        await createTodo({
+            title: newTodoTitle,
+            completed: false
+        })
+        await loadTodos()
+        newTodoTitleEl.value = ""
+        Toastify({
+      text: "✅ Todo successfully created!",
+      duration: 1500,
+      gravity: "top",
+      position: "center",
+      style: {
+        background: "linear-gradient(to right, #00b09b, #96c93d)",
+      },
+    }).showToast();
+    } catch (error) {
+        Toastify({
+            text: "Failed to create Todo",
+            duration: 1500,
+            gravity: "top",
+            position: "center",
+            style: {
+                background: "linear-gradient(to right, #ff416s, #ff4b2b)"
+            }
+        }).showToast()
+        console.error(error);
+        
+    }
 }
 newTodoFormEl.addEventListener("submit", newTodo)
 
-renderTodos()
+loadTodos()
