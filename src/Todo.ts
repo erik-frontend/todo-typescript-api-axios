@@ -1,6 +1,6 @@
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
-import { getTodos, createTodo, updateTodo, deleteTodo } from './api/todos.api';
+import { getTodos, createTodo, updateTodo, deleteTodo as deleteTodoApi } from './api/todos.api';
 import type { Todo } from './type/types';
 
 const todosEl = document.querySelector<HTMLUListElement>("#todos")!;
@@ -174,7 +174,7 @@ const renderTodos = () => {
     // console.log(deleteBtn);
     const deleteTodo = async(id: number | string) => {
         try {
-            await deleteTodo(id)
+            await deleteTodoApi(id)
             await loadTodos()
         } catch (error) {
             Toastify({
@@ -226,6 +226,7 @@ const renderTodos = () => {
             const li = btn.closest("li")!
 
             const id = li.dataset.id!
+            editTodoId = id
             // console.log(id);
             const titleInput = li?.querySelector<HTMLInputElement>(".todo-title")!
             titleInput.readOnly = false
@@ -305,5 +306,12 @@ const newTodo = async(e: SubmitEvent) => {
     }
 }
 newTodoFormEl.addEventListener("submit", newTodo)
+newTodoTitleEl.addEventListener("keydown", (e) => {
+    if(e.key === "Escape") {
+        e.preventDefault()
+        newTodoTitleEl.value = ""
+        newTodoTitleEl.blur()
+    }
+})
 
 loadTodos()

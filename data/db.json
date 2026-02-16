@@ -1,60 +1,24 @@
 {
   "todos": [
     {
-      "id": "1",
-      "title": "🤓 Learn about TypeScript",
-      "completed": true
-    },
-    {
-      "id": "2",
-      "title": "😇 Take over the world",
+      "id": "9cab",
+      "title": "Bob1",
       "completed": false
     },
     {
-      "id": "3",
-      "title": "💰 Profit",
+      "id": "6c4c",
+      "title": "Bob24",
       "completed": false
     },
     {
-      "id": "4",
-      "title": "😈 Be nice",
-      "completed": true
+      "id": "c42e",
+      "title": "Bob23",
+      "completed": false
     },
     {
-      "id": "afc3"
-    },
-    {
-      "id": "2f16"
-    },
-    {
-      "id": "8051"
-    },
-    {
-      "id": "8389"
-    },
-    {
-      "id": "02ec"
-    },
-    {
-      "id": "1343"
-    },
-    {
-      "id": "c6b4"
-    },
-    {
-      "id": "298d"
-    },
-    {
-      "id": "c235"
-    },
-    {
-      "id": "2378"
-    },
-    {
-      "id": "77d0"
-    },
-    {
-      "id": "e242"
+      "id": "265c",
+      "title": "sdfsdfgyfvyvy",
+      "completed": false
     }
   ]
 }
